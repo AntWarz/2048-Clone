@@ -283,6 +283,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playingFieldSize: 12
+  squaresPerSide: 4
   _whiteTile: {fileID: 1722666216451873658, guid: bd589e8b336f54a4f81150be99d52394, type: 3}
   _greyTile: {fileID: 2908824331088986961, guid: b22592ebac442bf4f8db48f60966c4dd, type: 3}
   _startingSquare: {fileID: 5329677494950250440, guid: 32b2d5184c461db48bd47f6fb6b898c6, type: 3}
@@ -432,7 +433,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.5, y: -1.5, z: -10}
+  m_LocalPosition: {x: 4.5, y: 4.5, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
