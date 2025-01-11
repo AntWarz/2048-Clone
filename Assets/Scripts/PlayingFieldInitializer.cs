@@ -10,9 +10,9 @@ public class PlayingFieldInitializer : MonoBehaviour
 
     [SerializeField] private GameObject _startingSquare;
 
-    public Dictionary<Vector2, bool> fieldDict = new Dictionary<Vector2, bool>();
     public bool[,] tileArrayBool;
     public Vector2[,] tileArrayVec;
+
     public Dictionary<int, int> freeTilesX = new Dictionary<int, int>();
     public Dictionary<int, int> freeTilesY = new Dictionary<int, int>();
 
@@ -20,63 +20,18 @@ public class PlayingFieldInitializer : MonoBehaviour
 
     private void Start()
     {
+        //Setting tile size
         _tileSize = _playingFieldSize / 4;
-        tileArrayBool = new bool[_playingFieldSize, _playingFieldSize];
+
+        //Initializing the two tile arrays
+        tileArrayBool = new bool[squaresPerSide, squaresPerSide];
         tileArrayVec = new Vector2[squaresPerSide, squaresPerSide];
-        //InitializePlayingfield();
+
+        //Initialize the playing field
         InitializeNew();
     }
 
-    private void Update()
-    {
-        GetFreeTiles();
-    }
-
-    private void InitializePlayingfield()
-    {
-        int firstTileX = -_playingFieldSize / 2;
-        int firstTileY = -_playingFieldSize / 2;
-
-        int squareCount = 0;
-
-        int i = 0;  
-        int j = 0;
-        for (int y = 0; y < _playingFieldSize; y += _tileSize)
-        {
-            for (int x = 0; x < _playingFieldSize; x += _tileSize)
-            {
-                Vector2 tilePos = new Vector2 (firstTileX + x, firstTileY + y);
-                fieldDict[tilePos] = false;
-                tileArrayBool[j, i] = false;
-                //Debug.Log($"Tile at {tilePos[0]}, {tilePos[1]}");
-                if (y % 2 == 0 && x % 2 == 0 || !(x % 2 == 0) && !(y % 2 == 0))
-                {
-                    Instantiate(_whiteTile, new Vector2(tilePos[0], tilePos[1]), Quaternion.identity, this.transform);
-                } else if (!(x % 2 == 0) && y % 2 == 0 || x % 2 == 0 && !(y % 2 ==0))
-                {
-                    Instantiate(_greyTile, new Vector2(tilePos[0], tilePos[1]), Quaternion.identity, this.transform);
-                }
-
-                float r = Random.Range(0f, 1f);
-                if (r >= 0.8f && squareCount < 2)
-                {
-                    squareCount++;
-                    fieldDict[tilePos] = true;
-                    tileArrayBool[j, i] = true;
-                    GameObject newTile = Instantiate(_startingSquare, new Vector2(tilePos[0], tilePos[1]), Quaternion.identity, this.transform);
-                    newTile.GetComponent<SquareMovement>().squarePos[0] = tilePos.x;
-                    newTile.GetComponent<SquareMovement>().squarePos[1] = tilePos.y;
-
-                    newTile.GetComponent<SquareMovement>().arrayPos.Add((x, y));
-                }
-                j++;
-            }
-            j = 0;
-            i++;
-        }
-    }
-
-
+    //Initialization of playing field and drawing of playing field and spawning moveable squares
     private void InitializeNew()
     {
         int squareCount = 0;
@@ -99,6 +54,15 @@ public class PlayingFieldInitializer : MonoBehaviour
                 tileArrayBool[x, y] = false;
                 tileArrayVec[x, y] = instPos;
 
+
+/*                if (y == 0 && x == 0 || y == 0 && x == 1)
+                {
+                    squareCount++;
+                    GameObject square = Instantiate(_startingSquare, instPos, Quaternion.identity, this.transform);
+                    square.GetComponent<SquareMovement>().arrayPos.Add((x, y));
+                    tileArrayBool[x, y] = true;
+                }*/
+
                 float r = Random.Range(0f, 1f);
                 if (r >= 0.8f && squareCount < 2)
                 {
@@ -107,7 +71,7 @@ public class PlayingFieldInitializer : MonoBehaviour
                     square.GetComponent<SquareMovement>().arrayPos.Add((x, y));
                     tileArrayBool[x, y] = true;
                 }
-                
+
                 i += _tileSize;
             }
             i = 0;
@@ -115,6 +79,7 @@ public class PlayingFieldInitializer : MonoBehaviour
         }
     }
 
+    //Retrieving free tiles for each axis and filling of free tile arrays
     public void GetFreeTiles()
     {
         for (int y = 0; y < squaresPerSide; y++)

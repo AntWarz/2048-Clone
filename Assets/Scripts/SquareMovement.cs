@@ -7,8 +7,6 @@ using System.Collections.Generic;
 
 public class SquareMovement : MonoBehaviour
 {
-    [SerializeField] private float _moveSpeed;
-
     public Vector2 squarePos = new Vector2();
     public List<(int, int)> arrayPos = new List<(int, int)>();
 
@@ -17,89 +15,129 @@ public class SquareMovement : MonoBehaviour
     private bool _moving = false;
     private Vector2 _moveAxis = new Vector2();
 
+    private int repeatCount = 0;
+
     private PlayingFieldInitializer _fieldInitializer;
 
     private void Start()
     {
+        //Find the input action
         _moveAction = InputSystem.actions.FindAction("Move");
+
+        //Get an instance of PlayingFieldInitializer
         _fieldInitializer = FindFirstObjectByType<PlayingFieldInitializer>();
-        //Debug.Log($"target tile at:{GetTargetPosition(squarePos, 1, 0)}");
+
+        //Call method in field initializer to fill up arrays of free tiles
         _fieldInitializer.GetFreeTiles();
-        Debug.Log($"Square has {_fieldInitializer.freeTilesY[arrayPos[0].Item2]} free tiles on y and {_fieldInitializer.freeTilesX[arrayPos[0].Item1]} free tiles on x");
     }
 
     private void Update()
     {
-        MoveSquare();
+        //React to player input
+        GetInputAction();
+
+        //Move the square until it can not anymore
+        if (_moving)
+        {
+            repeatCount++;
+            MoveSquare();
+            Debug.Log("Moving");
+        }
     }
+
+
 
     private void MoveSquare()
     {
-        /*        Vector2 targetTileV2 = new Vector2();
-                Vector3 targetTileV3 = new Vector3();
-                if (_moveAction.WasPerformedThisFrame())
+
+        //Get the free tiles for every axis by calling method in fieldinitializer
+        int freeY = _fieldInitializer.freeTilesY[arrayPos[0].Item2];
+        int freeX = _fieldInitializer.freeTilesY[arrayPos[0].Item1];
+
+        if (_moveAxis == new Vector2(1, 0) || _moveAxis == new Vector2(-1, 0))
+        {
+            if (_moveAxis.x > 0)
+            {
+                //Check if index is in bound, there are free tiles for this X axis and that the next tile is free
+                if (arrayPos[0].Item1 + 1 < 4 && freeX > 0 && !_fieldInitializer.tileArrayBool[arrayPos[0].Item1 + 1, arrayPos[0].Item2])
                 {
-                    _moving = true;
-                    _moveAxis = _moveAction.ReadValue<Vector2>();
-                    int dirX = 0;
-                    int dirY = 0;
-                    if(_moveAxis.x > 0)
-                    {
-                        dirX = Mathf.RoundToInt(_moveAxis.x);
-                    }
-                    if (_moveAxis.y > 0)
-                    {
-                        dirY = Mathf.RoundToInt(_moveAxis.y);
-                    }
-                    targetTileV2 = GetTargetPosition(squarePos, dirX, dirY);
-                    targetTileV3 = new Vector3(targetTileV2.x, targetTileV2.y, 0f);
-                    Debug.Log($"Current Pos: {transform.position} Target Tile at: {targetTileV3}");
-                    this.transform.position = targetTileV3;
-                }*/
+                    _fieldInitializer.tileArrayBool[arrayPos[0].Item1, arrayPos[0].Item2] = false;
 
+                    arrayPos[0] = (arrayPos[0].Item1 + 1, arrayPos[0].Item2);
+                    this.transform.position = _fieldInitializer.tileArrayVec[arrayPos[0].Item1, arrayPos[0].Item2];
+                    
+                    _fieldInitializer.tileArrayBool[arrayPos[0].Item1, arrayPos[0].Item2] = true;
+                } else if (repeatCount >= 2)
+                {
+                    _moving = false;
+                    repeatCount = 0;
+                }
+            }
+            else if (_moveAxis.x < 0)
+            {
+                if (arrayPos[0].Item1 - 1 >= 0 && freeX > 0 && !_fieldInitializer.tileArrayBool[arrayPos[0].Item1 - 1, arrayPos[0].Item2])
+                {
+                    _fieldInitializer.tileArrayBool[arrayPos[0].Item1, arrayPos[0].Item2] = false;
+                    
+                    arrayPos[0] = (arrayPos[0].Item1 - 1, arrayPos[0].Item2);
+                    this.transform.position = _fieldInitializer.tileArrayVec[arrayPos[0].Item1, arrayPos[0].Item2];
+                    
+                    _fieldInitializer.tileArrayBool[arrayPos[0].Item1, arrayPos[0].Item2] = true;
+                }
+                else if (repeatCount >= 2)
+                {
+                    _moving = false;
+                    repeatCount = 0;
+                }
+            }
 
+        } else if (_moveAxis == new Vector2(0, 1) || _moveAxis == new Vector2(0, -1))
+        {
+            if (_moveAxis.y > 0)
+            {
+                if (arrayPos[0].Item2 + 1 < 4 && freeY > 0 && !_fieldInitializer.tileArrayBool[arrayPos[0].Item1, arrayPos[0].Item2 + 1])
+                {
+                    _fieldInitializer.tileArrayBool[arrayPos[0].Item1, arrayPos[0].Item2] = false;
+                    
+                    arrayPos[0] = (arrayPos[0].Item1, arrayPos[0].Item2 + 1);
+                    this.transform.position = _fieldInitializer.tileArrayVec[arrayPos[0].Item1, arrayPos[0].Item2];
+                    
+                    _fieldInitializer.tileArrayBool[arrayPos[0].Item1, arrayPos[0].Item2] = true;
+                }
+                else if (repeatCount >= 2)
+                {
+                    _moving = false;
+                    repeatCount = 0;
+                }
+            }
+            else if (_moveAxis.y < 0)
+            {
+                if (arrayPos[0].Item2 - 1 >= 0 && freeY > 0 && !_fieldInitializer.tileArrayBool[arrayPos[0].Item1, arrayPos[0].Item2 - 1])
+                {
+                    _fieldInitializer.tileArrayBool[arrayPos[0].Item1, arrayPos[0].Item2] = false;
+                    
+                    arrayPos[0] = (arrayPos[0].Item1, arrayPos[0].Item2 - 1);
+                    this.transform.position = _fieldInitializer.tileArrayVec[arrayPos[0].Item1, arrayPos[0].Item2];
+                    
+                    _fieldInitializer.tileArrayBool[arrayPos[0].Item1, arrayPos[0].Item2] = true;
+                }
+                else if (repeatCount >= 2)
+                {
+                    _moving = false;
+                    repeatCount = 0;
+                }
+            }
 
+        }
+    }
+
+    private void GetInputAction()
+    {
         if (_moveAction.WasPressedThisFrame())
         {
             _moving = true;
             _moveAxis = _moveAction.ReadValue<Vector2>();
-            _fieldInitializer.GetFreeTiles();
-            int freeY = _fieldInitializer.freeTilesY[arrayPos[0].Item2];
-            int freeX = _fieldInitializer.freeTilesY[arrayPos[0].Item1];
-
-            if (_moveAxis == new Vector2(1, 0) ||  _moveAxis == new Vector2(-1, 0))
-            {
-                for (int i = 0;  i < freeX; i += Mathf.RoundToInt(_moveAxis.x))
-                {
-                    if (!_fieldInitializer.tileArrayBool[i, arrayPos[0].Item1])
-                    {
-                        transform.position = _fieldInitializer.tileArrayVec[i, arrayPos[0].Item1];
-                    }
-                }
-            }
+            _fieldInitializer.GetFreeTiles(); 
         }
-    }
-
-    private Vector2 GetTargetPosition(Vector2 squarePos, int dirX = 0, int dirY = 0)
-    {
-        Vector2 nextTile = new Vector2(squarePos[0] + dirX * 3, squarePos[1] + dirY * 3);
-        if (_fieldInitializer.fieldDict.Keys.Contains(nextTile) && !_fieldInitializer.fieldDict[nextTile])
-        {
-/*            Debug.Log($"Current Tile: {squarePos}");
-            Debug.Log($"Move Direction: {dirX} {dirY}");
-            Debug.Log($"Next tile: {nextTile}");
-            Debug.Log($"Next tile is occupied: {_fieldInitializer.fieldDict[nextTile]}");*/
-            return GetTargetPosition(nextTile, dirX, dirY);
-        }
-        return squarePos;
-    }
-
-
-
-
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        _moving = false;
     }
 }
