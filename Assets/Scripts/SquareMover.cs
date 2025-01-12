@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 public class SquareMover : MonoBehaviour
 {
+    public delegate void SpawnEvent();
+    public static event SpawnEvent spawnEvent;
 
     private InputAction _moveAction;
 
@@ -16,7 +18,7 @@ public class SquareMover : MonoBehaviour
     {
         if (_moveAction.WasPressedThisFrame())
         {
-            MoveSquare();
+           MoveSquare();
         }
     }
 
@@ -26,34 +28,34 @@ public class SquareMover : MonoBehaviour
         List<(bool, Vector2, (int, int), GameObject)> allSquares = new List<(bool, Vector2, (int, int), GameObject)>();
         Vector2 moveAxis = _moveAction.ReadValue<Vector2>();
         (int xD, int yD) = ConvertMoveDirection(moveAxis);
-        allSquares = FieldScanner.GetAllOccupied(tileArray ,moveAxis);
 
 
-        foreach (var tile in allSquares)
+        for (int i = 0; i < 4; i++)
         {
-            (int x, int y) = tile.Item3;
-            Debug.Log($"Current array Position: {(x, y)} with world position: {tile.Item2}");
-            Debug.Log($"Converted Moving direction: {(xD, yD)}");
-            Debug.Log($"New index: {(x + xD, y + yD)} results in new world position: {tile.Item2}");
-            if (x + xD < tileArray.GetLength(0) && x + xD >= 0 && y + yD < tileArray.GetLength(1) && y + yD >= 0)
+            allSquares = FieldScanner.GetAllOccupied(tileArray ,moveAxis);
+            foreach (var tile in allSquares)
             {
-                if (!tileArray[x + xD, y + yD].Item1)
+                (int x, int y) = tile.Item3;
+                if (x + xD < tileArray.GetLength(0) && x + xD >= 0 && y + yD < tileArray.GetLength(1) && y + yD >= 0)
                 {
-                    tile.Item4.transform.position = tileArray[x + xD, y + yD].Item2;
-                    tileArray[x, y].Item1 = false;
-                    tileArray[x + xD, y + yD].Item1 = true;
-                    tileArray[x + xD, y + yD].Item4 = tile.Item4;
-                    tileArray[x, y].Item4 = null;
+                    if (!tileArray[x + xD, y + yD].Item1)
+                    {
+                        tile.Item4.transform.position = tileArray[x + xD, y + yD].Item2;
+                        tileArray[x, y].Item1 = false;
+                        tileArray[x + xD, y + yD].Item1 = true;
+                        tileArray[x + xD, y + yD].Item4 = tile.Item4;
+                        tileArray[x, y].Item4 = null;
+                    } 
                 }
             }
         }
+        spawnEvent();
+
     }
 
 
     private (int, int) ConvertMoveDirection(Vector2 direction)
     {
-
         return (Mathf.RoundToInt(direction.x), Mathf.RoundToInt(direction.y));
-
     }
 }

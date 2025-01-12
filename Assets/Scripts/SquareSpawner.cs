@@ -8,13 +8,14 @@ public class SquareSpawner : MonoBehaviour
 
     private void Start()
     {
+        SquareMover.spawnEvent += EventSpawnSquare;
         SpawnSquare(_square);
         SpawnSquare(_square);
     }
 
 
 
-    public void SpawnSquare(GameObject square)
+    private void SpawnSquare(GameObject square)
     {
         (bool, Vector2, (int, int), GameObject)[,] tileArray;
         tileArray = FieldInitializer.TileArray;
@@ -26,5 +27,10 @@ public class SquareSpawner : MonoBehaviour
         tileArray[x, y].Item4 = squareSpawned;
         FieldInitializer.TileArray = tileArray;
 
+    }
+
+    public void EventSpawnSquare()
+    {
+        SpawnSquare(_square);
     }
 }
