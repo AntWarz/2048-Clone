@@ -25,10 +25,10 @@ public class SquareMovement : MonoBehaviour
         _moveAction = InputSystem.actions.FindAction("Move");
 
         //Get an instance of PlayingFieldInitializer
-        _fieldInitializer = FindFirstObjectByType<PlayingFieldInitializer>();
+        //_fieldInitializer = FindFirstObjectByType<PlayingFieldInitializer>();
 
         //Call method in field initializer to fill up arrays of free tiles
-        _fieldInitializer.GetFreeTiles();
+        //_fieldInitializer.GetFreeTiles();
     }
 
     private void Update()

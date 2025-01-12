@@ -4,11 +4,6 @@ public class FieldDrawer : MonoBehaviour
 {
     [SerializeField] private GameObject _whiteTile;
     [SerializeField] private GameObject _greyTile;
-    [SerializeField] private int _squaresPerSide;
-    [SerializeField] private int _tileSize;
-
-
-    private int _squareCount = 0;
 
     private void Start()
     {
@@ -17,10 +12,10 @@ public class FieldDrawer : MonoBehaviour
 
     private void DrawField()
     {
-        (bool, Vector2)[,] tileArray = FieldInitializer.InitializeFielArrays(_tileSize, _squaresPerSide);
-        for (int y = 0; y < _squaresPerSide; y++)
+        (bool, Vector2, (int, int), GameObject)[,] tileArray = FieldInitializer.TileArray;
+        for (int y = 0; y < tileArray.GetLength(0); y++)
         {
-            for (int x = 0; x < _squaresPerSide; x++)
+            for (int x = 0; x < tileArray.GetLength(0); x++)
             {
                 Vector2 instPos = tileArray[x, y].Item2;
                 if (y % 2 == 0 && x % 2 == 0 || !(x % 2 == 0) && !(y % 2 == 0))

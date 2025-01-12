@@ -253,6 +253,51 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &308561797
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 308561798}
+  - component: {fileID: 308561799}
+  m_Layer: 0
+  m_Name: Square Spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &308561798
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 308561797}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.1397505, y: 6.9576564, z: -0.019667113}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &308561799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 308561797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e85c2b991221f9e489392a725daa051f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _square: {fileID: 5329677494950250440, guid: 32b2d5184c461db48bd47f6fb6b898c6, type: 3}
 --- !u!1 &357120808
 GameObject:
   m_ObjectHideFlags: 0
@@ -264,6 +309,7 @@ GameObject:
   - component: {fileID: 357120810}
   - component: {fileID: 357120809}
   - component: {fileID: 357120811}
+  - component: {fileID: 357120812}
   m_Layer: 0
   m_Name: Playing Field
   m_TagString: Untagged
@@ -317,6 +363,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _whiteTile: {fileID: 1722666216451873658, guid: bd589e8b336f54a4f81150be99d52394, type: 3}
   _greyTile: {fileID: 2908824331088986961, guid: b22592ebac442bf4f8db48f60966c4dd, type: 3}
+--- !u!114 &357120812
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 357120808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c21460bc596ce614fbc2c29fb4ed8397, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   _squaresPerSide: 4
   _tileSize: 3
 --- !u!1 &519420028
@@ -709,6 +767,50 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1527564361
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1527564363}
+  - component: {fileID: 1527564362}
+  m_Layer: 0
+  m_Name: Square Mover
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1527564362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1527564361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4da63525504f8d4a98765317215b6e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1527564363
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1527564361}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.1397505, y: 6.9576564, z: -0.019667113}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1541947866
 GameObject:
   m_ObjectHideFlags: 0
@@ -985,3 +1087,5 @@ SceneRoots:
   - {fileID: 619394802}
   - {fileID: 784823733}
   - {fileID: 357120810}
+  - {fileID: 308561798}
+  - {fileID: 1527564363}
