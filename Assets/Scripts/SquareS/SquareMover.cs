@@ -29,32 +29,72 @@ public class SquareMover : MonoBehaviour
         List<(bool, Vector2, (int, int), GameObject)> allSquares;
 
 
-        for (int i = 0; i < 4; i++)
-        {
-            tileArray = FieldInitializer.TileArray;
-            allSquares = FieldScanner.GetAllOccupied(tileArray ,moveAxis);
+        tileArray = TileArrayHolder.TileArray;
+        allSquares = FieldScanner.GetAllOccupied(tileArray ,moveAxis);
 
-            foreach (var tile in allSquares)
+        bool moving = true;
+
+        foreach (var tile in allSquares)
+        {
+            (int x, int y) = tile.Item3;
+            moving = true;
+            while (moving)
             {
-                (int x, int y) = tile.Item3;
-                if (x + xD < tileArray.GetLength(0) && x + xD >= 0 && y + yD < tileArray.GetLength(1) && y + yD >= 0)
+                if (IndicesInBounds(x + xD, y + yD, tileArray.GetLength(0), 0, tileArray.GetLength(1), 0) && tile.Item4 != null)
                 {
                     if (!tileArray[x + xD, y + yD].Item1)
                     {
-                        FieldInitializer.UpdateTileArray((x + xD, y + yD), true, tile.Item4);
-                        FieldInitializer.UpdateTileArray((x, y), false, null);
+                        //Register square at the next tile position
+                        TileArrayHolder.UpdateTileArray((x + xD, y + yD), true, tile.Item4);
+                        //Remove square from current tile position
+                        TileArrayHolder.UpdateTileArray((x, y), false, null);
 
-                        //tile.Item4.transform.position = tileArray[x + xD, y + yD].Item2;
-
+                        //Set start- and target positions for movement of the square
                         Vector2 startPos = tile.Item4.transform.position;
                         Vector2 targetPos = tileArray[x + xD, y + yD].Item2;
+
+                        //Move the square
                         StartCoroutine(MoveTileSmooth(tile.Item4, startPos, targetPos, _moveDuration));
 
-                    } 
+                        //Re-assign the array indices for the current square
+                        (x, y) = tileArray[x + xD, y + yD].Item3;
+
+                    } else if (tileArray[x + xD, y + yD].Item1)
+                    {
+
+                        //Get the values of the square on the next tile and the current square
+                        int nextValue = tileArray[x + xD, y + yD].Item4.GetComponent<Square>().Value;
+                        int thisValue = tileArray[x, y].Item4.GetComponent<Square>().Value;
+                        Debug.Log($"Next tile at {(x+xD, y+yD)}has value {nextValue}");
+
+                        if ( nextValue == thisValue )
+                        {
+                            //If this condition is reached it means the square on the next tile has already 
+                            //finished its movement 
+                            //Therefore I should be able to delete it without any problems
+                            Destroy(tileArray[x + xD, y + yD].Item4);
+                            tile.Item4.GetComponent<Square>().Value = thisValue * 2;
+                            //Setting current square to be on the next tile
+                            TileArrayHolder.UpdateTileArray((x + xD, y + yD), true, tile.Item4);
+                            //Remove current square from current tile
+                            TileArrayHolder.UpdateTileArray((x, y), false, null);
+
+                            Vector2 startPos = tile.Item4.transform.position;
+                            Vector2 targetPos = tileArray[x + xD, y + yD].Item2;
+
+                            StartCoroutine(MoveTileSmooth(tile.Item4, startPos, targetPos, _moveDuration));
+                        }
+                        moving = false;
+                    } else
+                    {
+                        moving = false;
+                    }
+                } else
+                {
+                    moving = false;
                 }
             }
         }
-
         spawnEvent();
     }
 
@@ -64,21 +104,35 @@ public class SquareMover : MonoBehaviour
         return (Mathf.RoundToInt(direction.x), Mathf.RoundToInt(direction.y));
     }
 
-    private IEnumerator MoveTileSmooth(GameObject tile, Vector2 startPos, Vector2 targetPos, float duration)
+    private IEnumerator MoveTileSmooth(GameObject square, Vector2 startPos, Vector2 targetPos, float duration)
     {
         float elapsedTime = 0f;
 
         while (elapsedTime < duration)
         {
-            // Interpolate the position
-            tile.transform.position = Vector2.Lerp(startPos, targetPos, elapsedTime / duration);
+            if (square == null)
+            {
+                Debug.Log("Square was destroyed during movement.");
+                yield break; // Exit the coroutine safely
+            }
+            square.transform.position = Vector2.Lerp(startPos, targetPos, elapsedTime / duration);
             elapsedTime += Time.deltaTime;
 
-            // Wait for the next frame
             yield return null;
+
         }
 
-        // Ensure the tile reaches the exact target position
-        tile.transform.position = targetPos;
+        if (square != null)
+        {
+            square.transform.position = targetPos;
+        }
+    }
+
+    private bool IndicesInBounds(int x, int y, int boundXUpper, int boundXLower, int boundYUpper, int boundYLower)
+    {
+        if (x < boundXUpper && y < boundYUpper && x >= boundXLower && y >= boundYLower) return true;
+
+        else return false;
+
     }
 }

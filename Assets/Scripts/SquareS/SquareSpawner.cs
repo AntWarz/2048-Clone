@@ -18,18 +18,18 @@ public class SquareSpawner : MonoBehaviour
     private void SpawnSquare(GameObject square)
     {
         (bool, Vector2, (int, int), GameObject)[,] tileArray;
-        tileArray = FieldInitializer.TileArray;
+        tileArray = TileArrayHolder.TileArray;
         (Vector2 freeTilePos, (int x, int y))  = SpawnPositioner.GetRandomFreeTile(tileArray);
 
         GameObject squareSpawned = Instantiate(square, freeTilePos, Quaternion.identity, this.transform);
         tileArray[x, y].Item1 = true;
         tileArray[x, y].Item4 = squareSpawned;
-        FieldInitializer.TileArray = tileArray;
+        TileArrayHolder.TileArray = tileArray;
 
     }
 
     public void EventSpawnSquare()
     {
-        SpawnSquare(_square);
+        if (!GameManager.gameOver) SpawnSquare(_square);
     }
 }

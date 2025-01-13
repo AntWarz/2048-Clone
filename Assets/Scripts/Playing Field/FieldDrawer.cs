@@ -12,7 +12,7 @@ public class FieldDrawer : MonoBehaviour
 
     private void DrawField()
     {
-        (bool, Vector2, (int, int), GameObject)[,] tileArray = FieldInitializer.TileArray;
+        (bool, Vector2, (int, int), GameObject)[,] tileArray = TileArrayHolder.TileArray;
         for (int y = 0; y < tileArray.GetLength(0); y++)
         {
             for (int x = 0; x < tileArray.GetLength(0); x++)
