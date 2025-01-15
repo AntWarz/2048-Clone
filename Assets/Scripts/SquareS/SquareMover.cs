@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEditor;
+using UnityEditor.Build.Content;
 
 public class SquareMover : MonoBehaviour
 {
@@ -33,7 +35,8 @@ public class SquareMover : MonoBehaviour
         allSquares = FieldScanner.GetAllOccupied(tileArray ,moveAxis);
 
         bool moving = true;
-
+        bool fieldHasChanged = false;
+        
         foreach (var tile in allSquares)
         {
             (int x, int y) = tile.Item3;
@@ -46,47 +49,39 @@ public class SquareMover : MonoBehaviour
                     {
                         //Register square at the next tile position
                         TileArrayHolder.UpdateTileArray((x + xD, y + yD), true, tile.Item4);
+
                         //Remove square from current tile position
                         TileArrayHolder.UpdateTileArray((x, y), false, null);
 
-                        //Set start- and target positions for movement of the square
-                        Vector2 startPos = tile.Item4.transform.position;
-                        Vector2 targetPos = tileArray[x + xD, y + yD].Item2;
 
-                        //Move the square
-                        StartCoroutine(MoveTileSmooth(tile.Item4, startPos, targetPos, _moveDuration));
+                        UpdateTilePosition(tile, tileArray, x + xD, y + yD);
 
-                        //Re-assign the array indices for the current square
-                        (x, y) = tileArray[x + xD, y + yD].Item3;
+                        (x, y) = (x + xD, y + yD);
+                        fieldHasChanged = true;
 
-                    } else if (tileArray[x + xD, y + yD].Item1)
+                    }
+                    else if (tileArray[x + xD, y + yD].Item1)
                     {
 
                         //Get the values of the square on the next tile and the current square
                         int nextValue = tileArray[x + xD, y + yD].Item4.GetComponent<Square>().Value;
                         int thisValue = tileArray[x, y].Item4.GetComponent<Square>().Value;
-                        Debug.Log($"Next tile at {(x+xD, y+yD)}has value {nextValue}");
+                        Debug.Log($"Next tile at {(x + xD, y + yD)}has value {nextValue}");
 
-                        if ( nextValue == thisValue )
+                        if (nextValue == thisValue)
                         {
-                            //If this condition is reached it means the square on the next tile has already 
-                            //finished its movement 
-                            //Therefore I should be able to delete it without any problems
                             Destroy(tileArray[x + xD, y + yD].Item4);
                             tile.Item4.GetComponent<Square>().Value = thisValue * 2;
+
                             //Setting current square to be on the next tile
                             TileArrayHolder.UpdateTileArray((x + xD, y + yD), true, tile.Item4);
+
                             //Remove current square from current tile
                             TileArrayHolder.UpdateTileArray((x, y), false, null);
 
-                            Vector2 startPos = tile.Item4.transform.position;
-                            Vector2 targetPos = tileArray[x + xD, y + yD].Item2;
-
-                            StartCoroutine(MoveTileSmooth(tile.Item4, startPos, targetPos, _moveDuration));
-                        }
-                        moving = false;
-                    } else
-                    {
+                            UpdateTilePosition(tile, tileArray, x + xD, y + yD);
+                            fieldHasChanged = true;
+                        } 
                         moving = false;
                     }
                 } else
@@ -95,7 +90,11 @@ public class SquareMover : MonoBehaviour
                 }
             }
         }
-        spawnEvent();
+        //Fire event to spawn a new tile 
+        if (fieldHasChanged)
+        {
+            spawnEvent();
+        }
     }
 
 
@@ -103,6 +102,7 @@ public class SquareMover : MonoBehaviour
     {
         return (Mathf.RoundToInt(direction.x), Mathf.RoundToInt(direction.y));
     }
+    
 
     private IEnumerator MoveTileSmooth(GameObject square, Vector2 startPos, Vector2 targetPos, float duration)
     {
@@ -110,10 +110,12 @@ public class SquareMover : MonoBehaviour
 
         while (elapsedTime < duration)
         {
+            //Squares can be deleted while movement is not complete
+            //Checking that square is not null is necessary to avoid a Missing refeference exception
             if (square == null)
             {
                 Debug.Log("Square was destroyed during movement.");
-                yield break; // Exit the coroutine safely
+                yield break; 
             }
             square.transform.position = Vector2.Lerp(startPos, targetPos, elapsedTime / duration);
             elapsedTime += Time.deltaTime;
@@ -126,6 +128,15 @@ public class SquareMover : MonoBehaviour
         {
             square.transform.position = targetPos;
         }
+    }
+
+    private void UpdateTilePosition((bool, Vector2, (int, int), GameObject) tile, (bool, Vector2, (int, int), GameObject)[,] tileArray, int x, int y)
+    {
+        Vector2 startPos = tile.Item4.transform.position;
+        Vector2 targetPos = tileArray[x, y].Item2;
+
+        //Move the square
+        StartCoroutine(MoveTileSmooth(tile.Item4, startPos, targetPos, _moveDuration));
     }
 
     private bool IndicesInBounds(int x, int y, int boundXUpper, int boundXLower, int boundYUpper, int boundYLower)
