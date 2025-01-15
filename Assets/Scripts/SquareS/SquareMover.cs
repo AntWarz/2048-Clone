@@ -9,7 +9,9 @@ using UnityEditor.Build.Content;
 public class SquareMover : MonoBehaviour
 {
     public delegate void SpawnEvent();
+    public delegate void GameOverEvent();
     public static event SpawnEvent spawnEvent;
+    public static event GameOverEvent gameOverEvent;
 
     private float _moveDuration = 0.2f;
     private void OnEnable()
@@ -25,7 +27,7 @@ public class SquareMover : MonoBehaviour
     private void MoveSquare(Vector2 moveDirection)
     {
         Vector2 moveAxis = moveDirection;
-        (int xD, int yD) = ConvertMoveDirection(moveAxis);
+        (int xD, int yD) = (Mathf.RoundToInt(moveDirection.x), Mathf.RoundToInt(moveDirection.y));
 
         (bool, Vector2, (int, int), GameObject)[,] tileArray;
         List<(bool, Vector2, (int, int), GameObject)> allSquares;
@@ -34,16 +36,17 @@ public class SquareMover : MonoBehaviour
         tileArray = TileArrayHolder.TileArray;
         allSquares = FieldScanner.GetAllOccupied(tileArray ,moveAxis);
 
-        bool moving = true;
+        bool canMove = true;
         bool fieldHasChanged = false;
         
         foreach (var tile in allSquares)
         {
             (int x, int y) = tile.Item3;
-            moving = true;
-            while (moving)
+            canMove = true;
+            while (canMove)
             {
-                if (IndicesInBounds(x + xD, y + yD, tileArray.GetLength(0), 0, tileArray.GetLength(1), 0) && tile.Item4 != null)
+                bool indicesInBounds = HelperFunctions.IndicesInBounds(x + xD, y + yD, tileArray.GetLength(0), 0, tileArray.GetLength(1), 0);
+                if (indicesInBounds && tile.Item4 != null)
                 {
                     if (!tileArray[x + xD, y + yD].Item1)
                     {
@@ -57,6 +60,7 @@ public class SquareMover : MonoBehaviour
                         UpdateTilePosition(tile, tileArray, x + xD, y + yD);
 
                         (x, y) = (x + xD, y + yD);
+                        tileArray[x, y].Item4.GetComponent<Square>().ArrayIndex = (x, y);
                         fieldHasChanged = true;
 
                     }
@@ -66,7 +70,6 @@ public class SquareMover : MonoBehaviour
                         //Get the values of the square on the next tile and the current square
                         int nextValue = tileArray[x + xD, y + yD].Item4.GetComponent<Square>().Value;
                         int thisValue = tileArray[x, y].Item4.GetComponent<Square>().Value;
-                        Debug.Log($"Next tile at {(x + xD, y + yD)}has value {nextValue}");
 
                         if (nextValue == thisValue)
                         {
@@ -80,29 +83,26 @@ public class SquareMover : MonoBehaviour
                             TileArrayHolder.UpdateTileArray((x, y), false, null);
 
                             UpdateTilePosition(tile, tileArray, x + xD, y + yD);
+                            (x, y) = (x + xD, y + yD);
+                            tileArray[x, y].Item4.GetComponent<Square>().ArrayIndex = (x, y);
                             fieldHasChanged = true;
                         } 
-                        moving = false;
+                        canMove = false;
                     }
                 } else
                 {
-                    moving = false;
+                    canMove = false;
                 }
             }
+            tileArray[x, y].Item4.GetComponent<Square>().ArrayIndex = (x, y);
         }
         //Fire event to spawn a new tile 
         if (fieldHasChanged)
         {
+            if (!FieldScanner.IsFieldFull()) gameOverEvent();
             spawnEvent();
         }
     }
-
-
-    private (int, int) ConvertMoveDirection(Vector2 direction)
-    {
-        return (Mathf.RoundToInt(direction.x), Mathf.RoundToInt(direction.y));
-    }
-    
 
     private IEnumerator MoveTileSmooth(GameObject square, Vector2 startPos, Vector2 targetPos, float duration)
     {
@@ -137,13 +137,5 @@ public class SquareMover : MonoBehaviour
 
         //Move the square
         StartCoroutine(MoveTileSmooth(tile.Item4, startPos, targetPos, _moveDuration));
-    }
-
-    private bool IndicesInBounds(int x, int y, int boundXUpper, int boundXLower, int boundYUpper, int boundYLower)
-    {
-        if (x < boundXUpper && y < boundYUpper && x >= boundXLower && y >= boundYLower) return true;
-
-        else return false;
-
     }
 }

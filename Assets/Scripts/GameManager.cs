@@ -8,12 +8,12 @@ public class GameManager : MonoBehaviour
 
     private void OnEnable()
     {
-        SpawnPositioner.gameOver += OnGameOver;
+        SquareMover.gameOverEvent += OnGameOver;
     }
 
     private void OnDisable()
     {
-        SpawnPositioner.gameOver -= OnGameOver;
+        SquareMover.gameOverEvent -= OnGameOver;
     }
 
     private void OnGameOver()

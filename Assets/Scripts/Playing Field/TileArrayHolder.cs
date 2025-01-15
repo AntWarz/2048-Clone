@@ -7,10 +7,12 @@ public class TileArrayHolder : MonoBehaviour
     [SerializeField] private int _tileSize;
 
     public static (bool, Vector2, (int, int), GameObject)[,] TileArray;
+    public static int ArraySize;
 
     private void Awake()
     {
         TileArray = FieldCalculator.InitializeFieldArray(_tileSize, _squaresPerSide);
+        ArraySize = _squaresPerSide;
     }
 
 

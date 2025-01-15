@@ -24,10 +24,10 @@ public static class SpawnPositioner
         {
             int randIndex = Random.Range(0, freeTiles.Count);
             return freeTiles[randIndex];
-        } else
+        } /*else
         {
             gameOver();
-        }
+        }*/
 
         return (Vector2.zero, (0,0));
     }

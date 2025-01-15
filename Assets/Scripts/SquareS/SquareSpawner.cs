@@ -24,6 +24,8 @@ public class SquareSpawner : MonoBehaviour
         GameObject squareSpawned = Instantiate(square, freeTilePos, Quaternion.identity, this.transform);
         tileArray[x, y].Item1 = true;
         tileArray[x, y].Item4 = squareSpawned;
+        squareSpawned.GetComponent<Square>().ArrayIndex = (x, y);
+        squareSpawned.GetComponent<Square>().Value = 2;
         TileArrayHolder.TileArray = tileArray;
 
     }
